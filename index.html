@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registro de Movimiento de Fichas James Lind</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-principal: #1e1e2f;
+      --color-secundario: #4e91fc;
+      --color-acento: #21d4fd;
+      --fondo-claro: #f4f7fb;
+      --fondo-input: #ffffff;
+      --borde-claro: #dcdcdc;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--fondo-claro);
+      color: var(--color-principal);
+      margin: 0;
+      padding: 2rem;
+      max-width: 960px;
+      margin: auto;
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: var(--color-secundario);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: 600;
+    }
+
+    input, select {
+      padding: 0.75rem 1rem;
+      margin-top: 0.3rem;
+      width: 100%;
+      border: 1px solid var(--borde-claro);
+      border-radius: 12px;
+      font-size: 1rem;
+      background-color: var(--fondo-input);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 2rem;
+      background-color: white;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      border-radius: 12px;
+    }
+
+    th, td {
+      padding: 1rem;
+      border-bottom: 1px solid #f0f0f0;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f7f9fc;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧬 Registro de Movimiento de Fichas James Lind</h1>
+
+  <label for="paciente">Nombre del paciente:</label>
+  <input type="text" id="paciente" placeholder="Ej: Juan Pérez" />
+
+  <label for="tomo">Tomo:</label>
+  <input type="text" id="tomo" placeholder="Ej: Tomo 1" />
+
+  <label for="ubicacion">Ubicación actual:</label>
+  <select id="ubicacion">
+    <option value="">Selecciona ubicación</option>
+    <option>Data Entry</option>
+    <option>Coordinación</option>
+    <option>Oficina Dr. Segundo Piso</option>
+    <option>Oficina Dr. Primer Piso</option>
+    <option>Monitoreo</option>
+    <option>Supervisión</option>
+  </select>
+
+  <label for="usuario">Escaneado por:</label>
+  <input type="text" id="usuario" placeholder="Nombre del usuario" />
+
+  <button onclick="registrarMovimiento()">Registrar movimiento</button>
+
+  <label for="busqueda">Buscar por paciente o tomo:</label>
+  <input type="text" id="busqueda" oninput="buscarFicha()" placeholder="Buscar..." />
+
+  <div id="resultadoBusqueda"></div>
+
+  <table id="tablaMovimientos">
+    <thead>
+      <tr>
+        <th>Paciente</th>
+        <th>Tomo</th>
+        <th>Ubicación</th>
+        <th>Usuario</th>
+        <th>Fecha</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    let movimientos = JSON.parse(localStorage.getItem("movimientos") || "[]");
+
+    function registrarMovimiento() {
+      const paciente = document.getElementById("paciente").value.trim();
+      const tomo = document.getElementById("tomo").value.trim();
+      const ubicacion = document.getElementById("ubicacion").value;
+      const usuario = document.getElementById("usuario").value.trim();
+      const fecha = new Date().toLocaleString();
+
+      if (!paciente || !tomo || !ubicacion || !usuario) return;
+
+      movimientos.push({ paciente, tomo, ubicacion, usuario, fecha });
+      localStorage.setItem("movimientos", JSON.stringify(movimientos));
+      actualizarTabla();
+
+      document.getElementById("paciente").value = "";
+      document.getElementById("tomo").value = "";
+      document.getElementById("ubicacion").value = "";
+      document.getElementById("usuario").value = "";
+    }
+
+    function actualizarTabla(filtro = "") {
+      const tbody = document.querySelector("#tablaMovimientos tbody");
+      tbody.innerHTML = "";
+      const filtrados = movimientos.filter(m => 
+        m.paciente.toLowerCase().includes(filtro.toLowerCase()) || 
+        m.tomo.toLowerCase().includes(filtro.toLowerCase())
+      );
+      filtrados.slice(-50).reverse().forEach(m => {
+        const row = `<tr><td>${m.paciente}</td><td>${m.tomo}</td><td>${m.ubicacion}</td><td>${m.usuario}</td><td>${m.fecha}</td></tr>`;
+        tbody.innerHTML += row;
+      });
+    }
+
+    function buscarFicha() {
+      const filtro = document.getElementById("busqueda").value;
+      actualizarTabla(filtro);
+    }
+
+    actualizarTabla();
+  </script>
+</body>
+</html>
